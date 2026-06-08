@@ -1,0 +1,16 @@
+{
+    "Machines": [
+        {
+            "name": "Human Readable",
+            "id": 0,
+            "controlType": "GRBL",
+            "suffix": "For Identical Devices"
+        },
+        {
+            "name": "Human Readable",
+            "id": 1,
+            "controlType": "Marlin",
+            "suffix": "For Identical Devices" 
+        }
+    ]
+}
