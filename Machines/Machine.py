@@ -32,6 +32,3 @@ def parseJson(item: dict) -> Machine:
         controllerEnum.fromStr(item['controlType']),
         item['suffix']
     )
-
-if __name__=='__main__':
-    print(loadFromJson())
