@@ -3,7 +3,11 @@ This repository is a project that aims to create wireless control for different 
 
 ## Todo
 ESP-Side
-Server
+Control
 
 ## Done
 Machine Creator
+Server
+
+# To Run
+Run 'python -m Server.main' while in the MachineServer directory.

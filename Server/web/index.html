@@ -3,284 +3,656 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Machine Server</title>
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <style>
-body {
-    font-family: Arial, sans-serif;
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 20px;
-    background: #f5f5f5;
-}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-h1 {
-    text-align: center;
-}
+  :root {
+    --bg: #ffffff;
+    --bg-secondary: #f5f4f1;
+    --bg-tertiary: #efede8;
+    --text-primary: #1a1a18;
+    --text-secondary: #5f5e5a;
+    --text-tertiary: #888780;
+    --border: rgba(0,0,0,0.12);
+    --border-strong: rgba(0,0,0,0.22);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --green: #1D9E75;
+    --green-bg: #E1F5EE;
+    --green-text: #0F6E56;
+    --amber: #EF9F27;
+    --amber-bg: #FAEEDA;
+    --amber-text: #854F0B;
+    --red: #E24B4A;
+    --red-bg: #FCEBEB;
+    --red-text: #A32D2D;
+    --blue-bg: #E6F1FB;
+    --blue-text: #185FA5;
+  }
 
-.card {
-    background: white;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 15px;
-    box-shadow: 0 2px 4px rgba(0,0,0,.15);
-}
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1e1e1c;
+      --bg-secondary: #2a2a28;
+      --bg-tertiary: #242422;
+      --text-primary: #f0ede6;
+      --text-secondary: #b4b2a9;
+      --text-tertiary: #888780;
+      --border: rgba(255,255,255,0.10);
+      --border-strong: rgba(255,255,255,0.20);
+      --green-bg: #085041;
+      --green-text: #9FE1CB;
+      --amber-bg: #633806;
+      --amber-text: #FAC775;
+      --red-bg: #501313;
+      --red-text: #F7C1C1;
+      --blue-bg: #0C447C;
+      --blue-text: #B5D4F4;
+    }
+  }
 
-.machine-header {
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+
+  .container { max-width: 960px; margin: 0 auto; }
+
+  /* Top bar */
+  .top-bar {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-}
-
-.machine-info {
-    line-height: 1.5;
-}
-
-button {
-    padding: 8px 12px;
-    cursor: pointer;
-}
-
-input, select {
-    padding: 6px;
-    margin: 4px;
-}
-
-.status {
-    margin-top: 10px;
-    font-size: 0.9rem;
-}
-
-#add-machine {
+    justify-content: space-between;
     margin-bottom: 20px;
-}
-</style>
+  }
+  .top-bar h1 {
+    font-size: 20px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .top-bar h1 i { font-size: 22px; }
+  .refresh-btn {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 7px 10px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    transition: color 0.15s;
+  }
+  .refresh-btn:hover { color: var(--text-primary); }
 
+  /* Stats */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .stat {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+  }
+  .stat-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  .stat-val { font-size: 24px; font-weight: 500; }
+  .stat-val.green { color: var(--green); }
+  .stat-val.amber { color: var(--amber); }
+
+  /* Section title */
+  .section-title {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    margin-bottom: 10px;
+    margin-top: 24px;
+  }
+
+  /* Machine grid */
+  .machine-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .machine-card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    border-left: 3px solid var(--border-strong);
+  }
+  .machine-card.online { border-left-color: var(--green); }
+  .machine-card.offline { border-left-color: var(--red); }
+  .machine-card.busy   { border-left-color: var(--amber); }
+
+  .mc-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .mc-name { font-size: 15px; font-weight: 500; }
+  .mc-id { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .badge .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .badge.online { background: var(--green-bg); color: var(--green-text); }
+  .badge.online .dot { background: var(--green); }
+  .badge.offline { background: var(--red-bg); color: var(--red-text); }
+  .badge.offline .dot { background: var(--red); }
+  .badge.busy { background: var(--amber-bg); color: var(--amber-text); }
+  .badge.busy .dot { background: var(--amber); }
+
+  .mc-meta {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+  .mc-meta-item { font-size: 12px; color: var(--text-secondary); }
+  .mc-meta-item span { color: var(--text-primary); font-weight: 500; }
+
+  .mc-job {
+    font-size: 13px;
+    padding: 8px 10px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-height: 36px;
+  }
+  .mc-job.empty { color: var(--text-tertiary); font-style: italic; }
+  .mc-job-name {
+    color: var(--text-primary);
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .mc-job-tag {
+    font-size: 11px;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+  }
+
+  .mc-actions { display: flex; gap: 6px; margin-top: 10px; }
+  .mc-actions button { flex: 1; font-size: 12px; }
+
+  /* Buttons */
+  button {
+    font-family: inherit;
+    font-size: 14px;
+    padding: 7px 14px;
+    border-radius: var(--radius-md);
+    border: 0.5px solid var(--border-strong);
+    background: var(--bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: background 0.12s;
+  }
+  button:hover { background: var(--bg-secondary); }
+  button:active { transform: scale(0.98); }
+  button.danger { color: var(--red-text); border-color: var(--red); }
+  button.danger:hover { background: var(--red-bg); }
+  button.primary {
+    background: var(--text-primary);
+    color: var(--bg);
+    border-color: transparent;
+  }
+  button.primary:hover { opacity: 0.85; }
+
+  /* Inputs */
+  input[type=text], input[type=file], select {
+    font-family: inherit;
+    font-size: 14px;
+    padding: 7px 10px;
+    border-radius: var(--radius-md);
+    border: 0.5px solid var(--border-strong);
+    background: var(--bg);
+    color: var(--text-primary);
+    outline: none;
+    width: 100%;
+  }
+  input[type=text]:focus, select:focus { border-color: var(--text-secondary); }
+  input[type=file] { padding: 6px 10px; }
+
+  /* Cards */
+  .card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    margin-top: 12px;
+  }
+  .card h3 {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .form-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .form-row input[type=text], .form-row select { flex: 1; min-width: 100px; width: auto; }
+  .upload-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .upload-row select { flex: 1; min-width: 130px; width: auto; }
+  .upload-row input[type=file] { flex: 2; min-width: 170px; width: auto; }
+
+  /* Queue */
+  .queue-list { display: flex; flex-direction: column; gap: 6px; }
+  .queue-item {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .queue-pos {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+  }
+  .queue-info { flex: 1; min-width: 0; }
+  .queue-file {
+    font-size: 13px;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .queue-machine { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--bg);
+    border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    padding: 10px 16px;
+    font-size: 13px;
+    display: none;
+    z-index: 999;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+
+  .error-msg {
+    font-size: 12px;
+    color: var(--red-text);
+    margin-top: 6px;
+    display: none;
+  }
+  .status-msg { font-size: 13px; color: var(--text-secondary); margin-top: 6px; min-height: 20px; }
+
+  .empty-state {
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 8px 0;
+  }
+
+  hr.divider {
+    border: none;
+    border-top: 0.5px solid var(--border);
+    margin: 24px 0 4px;
+  }
+</style>
 </head>
 <body>
 
-<h1>Machine Server</h1>
+<div class="container" role="main">
+  <div class="top-bar">
+    <h1>
+      <i class="ti ti-cpu" aria-hidden="true"></i>
+      Machine Server
+    </h1>
+    <button class="refresh-btn" onclick="loadAll()" aria-label="Refresh data">
+      <i class="ti ti-refresh" id="refresh-icon"></i>
+    </button>
+  </div>
 
-<div class="card" id="add-machine">
-    <h2>Add Machine</h2>
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat">
+      <div class="stat-label">Machines</div>
+      <div class="stat-val" id="stat-machines">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Online</div>
+      <div class="stat-val green" id="stat-online">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Busy</div>
+      <div class="stat-val amber" id="stat-busy">—</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Jobs queued</div>
+      <div class="stat-val" id="stat-jobs">—</div>
+    </div>
+  </div>
 
-    <input
-        id="machine-name"
-        type="text"
-        placeholder="Machine Name"
-    >
+  <!-- Machines -->
+  <div class="section-title">Machines</div>
+  <div class="machine-grid" id="machine-grid">
+    <div class="empty-state">Loading machines…</div>
+  </div>
 
-    <select id="machine-type">
+  <!-- Queue -->
+  <div class="section-title">Queue</div>
+  <div class="queue-list" id="queue-list">
+    <div class="empty-state">Loading queue…</div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Add Machine -->
+  <div class="card">
+    <h3><i class="ti ti-plus" aria-hidden="true"></i> Add machine</h3>
+    <div class="form-row">
+      <input type="text" id="new-name" placeholder="Machine name" />
+      <select id="new-type">
         <option value="GRBL">GRBL</option>
         <option value="Marlin">Marlin</option>
-    </select>
+      </select>
+      <input type="text" id="new-suffix" placeholder="Suffix" value="main" />
+      <button class="primary" onclick="addMachine()">
+        <i class="ti ti-plus" aria-hidden="true"></i> Add
+      </button>
+    </div>
+    <div class="error-msg" id="add-error">Please enter a machine name.</div>
+  </div>
 
-    <input
-        id="machine-suffix"
-        type="text"
-        value="main"
-        placeholder="Suffix"
-    >
-
-    <button onclick="addMachine()">
-        Add Machine
-    </button>
+  <!-- Upload Job -->
+  <div class="card">
+    <h3><i class="ti ti-upload" aria-hidden="true"></i> Upload job</h3>
+    <div class="upload-row">
+      <select id="upload-machine" aria-label="Target machine"></select>
+      <input type="file" id="upload-file" aria-label="Job file" />
+      <button class="primary" onclick="uploadJob()">
+        <i class="ti ti-upload" aria-hidden="true"></i> Upload
+      </button>
+    </div>
+    <div class="error-msg" id="upload-error">Select a machine and file.</div>
+    <div class="status-msg" id="upload-status"></div>
+  </div>
 </div>
 
-<div id="machine-container"></div>
+<div class="toast" id="toast"></div>
 
 <script>
+  let machines = [];
+  let queue = {};
+  let statuses = {};
 
-async function refreshMachines()
-{
-    const container =
-        document.getElementById("machine-container");
+  function showToast(msg, ok) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.color = ok === false ? 'var(--red-text)' : 'var(--green-text)';
+    t.style.display = 'block';
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => t.style.display = 'none', 2500);
+  }
 
-    container.innerHTML = "Loading...";
+  function statusClass(id) {
+    const s = statuses[id];
+    if (!s) return 'offline';
+    if (s.busy) return 'busy';
+    if (s.connected) return 'online';
+    return 'offline';
+  }
 
-    try
-    {
-        const response =
-            await fetch("/machines");
+  function currentJob(id) {
+    const q = queue[String(id)];
+    return (q && q.length > 0) ? q[0] : null;
+  }
 
-        const data =
-            await response.json();
-        
-        container.innerHTML = "";
+  async function fetchMachines() {
+    const r = await fetch('/machines');
+    if (!r.ok) throw new Error('machines fetch failed');
+    const d = await r.json();
+    machines = d.Machines || [];
+  }
 
-        data.Machines.forEach(machine =>
-        {
-            const card =
-                document.createElement("div");
+  async function fetchStatuses() {
+    await Promise.allSettled(machines.map(async m => {
+      try {
+        const r = await fetch('/status/' + m.id);
+        statuses[m.id] = r.ok ? await r.json() : { connected: false, busy: false };
+      } catch { statuses[m.id] = { connected: false, busy: false }; }
+    }));
+  }
 
-            card.className = "card";
+  async function fetchQueue() {
+    try {
+      const r = await fetch('/queue');
+      if (r.ok) queue = await r.json();
+    } catch { queue = {}; }
+  }
 
-            card.innerHTML = `
-                <div class="machine-header">
-
-                    <div class="machine-info">
-                        <strong>${machine.name}</strong><br>
-                        ID: ${machine.id}<br>
-                        Type: ${machine.controlType}<br>
-                        Suffix: ${machine.suffix}
-                    </div>
-
-                    <button onclick="deleteMachine(${machine.id})">
-                        Delete
-                    </button>
-
-                </div>
-
-                <hr>
-
-                <input
-                    type="file"
-                    id="file-${machine.id}"
-                >
-
-                <button onclick="uploadFile(${machine.id})">
-                    Upload
-                </button>
-
-                <div
-                    class="status"
-                    id="status-${machine.id}">
-                </div>
-            `;
-
-            container.appendChild(card);
-        });
+  function renderMachines() {
+    const grid = document.getElementById('machine-grid');
+    if (machines.length === 0) {
+      grid.innerHTML = '<div class="empty-state">No machines added yet.</div>';
+      return;
     }
-    catch(err)
-    {
-        container.innerHTML =
-            "Failed to load machines.";
+    grid.innerHTML = machines.map(m => {
+      const cls = statusClass(m.id);
+      const label = cls.charAt(0).toUpperCase() + cls.slice(1);
+      const job = currentJob(m.id);
+      const qLen = (queue[String(m.id)] || []).length;
+      const jobHtml = job
+        ? `<div class="mc-job">
+             <span class="mc-job-name"><i class="ti ti-file" aria-hidden="true"></i>${escHtml(job)}</span>
+             <span class="mc-job-tag">running</span>
+           </div>`
+        : `<div class="mc-job empty">No active job</div>`;
+      return `
+        <div class="machine-card ${cls}">
+          <div class="mc-header">
+            <div>
+              <div class="mc-name">${escHtml(m.name)}</div>
+              <div class="mc-id">ID: ${m.id}</div>
+            </div>
+            <span class="badge ${cls}"><span class="dot"></span>${label}</span>
+          </div>
+          <div class="mc-meta">
+            <div class="mc-meta-item">Type <span>${escHtml(m.controlType)}</span></div>
+            <div class="mc-meta-item">Suffix <span>${escHtml(m.suffix)}</span></div>
+            <div class="mc-meta-item">Queue <span>${qLen}</span></div>
+          </div>
+          ${jobHtml}
+          <div class="mc-actions">
+            <button onclick="refreshStatus(${m.id})">
+              <i class="ti ti-refresh" aria-hidden="true"></i> Refresh
+            </button>
+            <button class="danger" onclick="deleteMachine(${m.id})">
+              <i class="ti ti-trash" aria-hidden="true"></i> Delete
+            </button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function renderQueue() {
+    const list = document.getElementById('queue-list');
+    const items = [];
+    Object.entries(queue).forEach(([mid, files]) => {
+      const machine = machines.find(m => String(m.id) === String(mid));
+      const mname = machine ? machine.name : 'Machine ' + mid;
+      files.forEach((f, i) => items.push({ pos: i + 1, file: f, machine: mname }));
+    });
+    if (items.length === 0) {
+      list.innerHTML = '<div class="empty-state">Queue is empty.</div>';
+      return;
     }
-}
+    list.innerHTML = items.map(item => `
+      <div class="queue-item">
+        <div class="queue-pos">${item.pos}</div>
+        <div class="queue-info">
+          <div class="queue-file">
+            <i class="ti ti-file" aria-hidden="true" style="font-size:13px;"></i>
+            ${escHtml(item.file)}
+          </div>
+          <div class="queue-machine">${escHtml(item.machine)}</div>
+        </div>
+      </div>`).join('');
+  }
 
-async function addMachine()
-{
-    const name =
-        document.getElementById("machine-name").value;
+  function renderStats() {
+    const online = machines.filter(m => statusClass(m.id) === 'online').length;
+    const busy   = machines.filter(m => statusClass(m.id) === 'busy').length;
+    const jobs   = Object.values(queue).reduce((s, q) => s + q.length, 0);
+    document.getElementById('stat-machines').textContent = machines.length;
+    document.getElementById('stat-online').textContent   = online;
+    document.getElementById('stat-busy').textContent     = busy;
+    document.getElementById('stat-jobs').textContent     = jobs;
+  }
 
-    const controlType =
-        document.getElementById("machine-type").value;
+  function renderUploadSelect() {
+    const sel = document.getElementById('upload-machine');
+    sel.innerHTML = machines.length === 0
+      ? '<option value="">No machines available</option>'
+      : machines.map(m => `<option value="${m.id}">${escHtml(m.name)}</option>`).join('');
+  }
 
-    const suffix =
-        document.getElementById("machine-suffix").value;
-
-    if(!name)
-    {
-        alert("Enter a machine name.");
-        return;
+  async function loadAll() {
+    const icon = document.getElementById('refresh-icon');
+    icon.style.opacity = '0.35';
+    try {
+      await fetchMachines();
+      await Promise.all([fetchStatuses(), fetchQueue()]);
+      renderMachines();
+      renderQueue();
+      renderStats();
+      renderUploadSelect();
+    } catch (e) {
+      document.getElementById('machine-grid').innerHTML =
+        '<div class="empty-state" style="color:var(--red-text);">Failed to load. Is the server running?</div>';
     }
+    icon.style.opacity = '1';
+  }
 
-    const response =
-        await fetch("/add-machine",
-        {
-            method: "POST",
+  async function refreshStatus(id) {
+    try {
+      const r = await fetch('/status/' + id);
+      statuses[id] = r.ok ? await r.json() : { connected: false, busy: false };
+    } catch { statuses[id] = { connected: false, busy: false }; }
+    renderMachines();
+    renderStats();
+  }
 
-            headers:
-            {
-                "Content-Type": "application/json"
-            },
+  async function addMachine() {
+    const name        = document.getElementById('new-name').value.trim();
+    const controlType = document.getElementById('new-type').value;
+    const suffix      = document.getElementById('new-suffix').value.trim() || 'main';
+    const err         = document.getElementById('add-error');
+    if (!name) { err.style.display = 'block'; return; }
+    err.style.display = 'none';
+    try {
+      const r = await fetch('/add-machine', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, controlType, suffix })
+      });
+      if (r.ok) {
+        document.getElementById('new-name').value = '';
+        showToast('Machine added.');
+        loadAll();
+      } else { showToast('Failed to add machine.', false); }
+    } catch { showToast('Request failed.', false); }
+  }
 
-            body: JSON.stringify(
-            {
-                name: name,
-                controlType: controlType,
-                suffix: suffix
-            })
-        });
+  async function deleteMachine(id) {
+    if (!confirm('Delete this machine?')) return;
+    try {
+      const r = await fetch('/machine/' + id, { method: 'DELETE' });
+      if (r.ok) { showToast('Machine deleted.'); loadAll(); }
+      else showToast('Delete failed.', false);
+    } catch { showToast('Request failed.', false); }
+  }
 
-    if(response.ok)
-    {
-        document.getElementById("machine-name").value = "";
-
-        refreshMachines();
+  async function uploadJob() {
+    const mid       = document.getElementById('upload-machine').value;
+    const fileInput = document.getElementById('upload-file');
+    const err       = document.getElementById('upload-error');
+    const statusEl  = document.getElementById('upload-status');
+    if (!mid || fileInput.files.length === 0) { err.style.display = 'block'; return; }
+    err.style.display = 'none';
+    statusEl.textContent = 'Uploading…';
+    try {
+      const fd = new FormData();
+      fd.append('file', fileInput.files[0]);
+      fd.append('machineID', mid);
+      const r = await fetch('/upload', { method: 'POST', body: fd });
+      if (r.ok) {
+        statusEl.textContent = 'Uploaded: ' + fileInput.files[0].name;
+        fileInput.value = '';
+        showToast('File queued.');
+        loadAll();
+      } else {
+        statusEl.textContent = 'Upload failed.';
+        showToast('Upload failed.', false);
+      }
+    } catch {
+      statusEl.textContent = 'Upload failed.';
+      showToast('Request failed.', false);
     }
-    else
-    {
-        alert("Failed to add machine.");
-    }
-}
+  }
 
-async function deleteMachine(id)
-{
-    if(!confirm("Delete this machine?"))
-        return;
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
 
-    const response =
-        await fetch(`/machine/${id}`,
-        {
-            method: "DELETE"
-        });
-
-    if(response.ok)
-    {
-        refreshMachines();
-    }
-    else
-    {
-        alert("Delete failed.");
-    }
-}
-
-async function uploadFile(machineID)
-{
-    const input =
-        document.getElementById(`file-${machineID}`);
-
-    if(input.files.length === 0)
-    {
-        alert("Choose a file first.");
-        return;
-    }
-
-    const file =
-        input.files[0];
-
-    const formData =
-        new FormData();
-
-    formData.append("file", file);
-    formData.append("machineID", machineID);
-
-    const status =
-        document.getElementById(`status-${machineID}`);
-
-    status.textContent = "Uploading...";
-
-    try
-    {
-        const response =
-            await fetch("/upload",
-            {
-                method: "POST",
-                body: formData
-            });
-
-        if(response.ok)
-        {
-            status.textContent =
-                `Uploaded: ${file.name}`;
-        }
-        else
-        {
-            status.textContent =
-                "Upload failed.";
-        }
-    }
-    catch(err)
-    {
-        status.textContent =
-            "Upload failed.";
-    }
-}
-
-refreshMachines();
-
+  loadAll();
+  setInterval(loadAll, 8000);
 </script>
 
 </body>

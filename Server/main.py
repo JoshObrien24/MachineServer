@@ -20,6 +20,11 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
         if self.path == "/machines":
             self.send_json(Machines.loadFromJsonRaw())
             return
+
+        if self.path.startswith('/status/'):
+            machine_id = int(self.path.split("/")[-1])
+            MachineUtil.getStatus(machine_id)
+
         return super().do_GET()
 
     def do_POST(self):

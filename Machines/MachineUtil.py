@@ -92,5 +92,9 @@ def verifyQueue(id:int, filename: str) -> bool:
     except KeyError:
         content[id] = []
     
+    #TODO: Finish
 
+def getStatus(id: int) -> bool:
+    #TODO: Finish
     ...
+    
