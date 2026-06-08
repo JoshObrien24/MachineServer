@@ -39,7 +39,20 @@ def addMachine(name: str, id: int, controlType: ControlType, suffix: str) -> Non
             content = json.load(file)
         content['Machines'].append(machine)
         with open('Machines/Machines.json', 'w') as file:
-            json.dump(content, file)
+            json.dump(content, file, indent=2)
+
+def addMachineJSON(machine: dict) -> None:
+    if id not in (ids:=getIDs()):
+        with open('Machines/Machines.json', 'r') as file:
+            content = json.load(file)
+        try:
+            machine['id']
+        except KeyError:
+            ids.sort()
+            machine['id'] = ids[-1] + 1
+        content['Machines'].append(machine)
+        with open('Machines/Machines.json', 'w') as file:
+            json.dump(content, file, indent=2)
 
 def deleteMachineByID(id: int) -> None:
     if id in getIDs():
@@ -54,4 +67,30 @@ def deleteMachineByID(id: int) -> None:
         content['Machines'].pop(itemIndex)
 
         with open('Machines/Machines.json', 'w') as file:
-            json.dump(content, file)
+            json.dump(content, file, indent=2)
+
+def addFileToQueue(id: int, filename: str):
+    with open('Server/Uploads/queue.json', 'r') as file:
+        content = json.load(file)
+    
+    try:
+        t = content[id]
+    except KeyError:
+        content[id] = []
+    
+    content[id].append(filename)
+
+    with open('Server/Uploads/queue.json', 'w') as file:
+        json.dump(content, file, indent=2)
+
+def verifyQueue(id:int, filename: str) -> bool:
+    with open('Server/Uploads/queue.json', 'r') as file:
+        content = json.load(file)
+    
+    try:
+        t = content[id]
+    except KeyError:
+        content[id] = []
+    
+
+    ...

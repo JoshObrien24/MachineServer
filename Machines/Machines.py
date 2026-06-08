@@ -1,4 +1,4 @@
-from MachineUtil import ControlType, ControllerEnum
+from Machines.MachineUtil import ControlType, ControllerEnum
 import json
 
 class Machine:
@@ -22,10 +22,14 @@ def loadFromJson() -> dict:
     
     return final
 
+def loadFromJsonRaw() -> dict:
+    with open('Machines/Machines.json', 'r') as file:
+        base = json.load(file)
+
+    return base
+
 def parseJson(item: dict) -> Machine:
-
     controllerEnum = ControllerEnum()
-
     return Machine(
         item['name'],
         item["id"],

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Machine Server</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f5f5f5;
+}
+
+h1 {
+    text-align: center;
+}
+
+.card {
+    background: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,.15);
+}
+
+.machine-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.machine-info {
+    line-height: 1.5;
+}
+
+button {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+input, select {
+    padding: 6px;
+    margin: 4px;
+}
+
+.status {
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+#add-machine {
+    margin-bottom: 20px;
+}
+</style>
+
+</head>
+<body>
+
+<h1>Machine Server</h1>
+
+<div class="card" id="add-machine">
+    <h2>Add Machine</h2>
+
+    <input
+        id="machine-name"
+        type="text"
+        placeholder="Machine Name"
+    >
+
+    <select id="machine-type">
+        <option value="GRBL">GRBL</option>
+        <option value="Marlin">Marlin</option>
+    </select>
+
+    <input
+        id="machine-suffix"
+        type="text"
+        value="main"
+        placeholder="Suffix"
+    >
+
+    <button onclick="addMachine()">
+        Add Machine
+    </button>
+</div>
+
+<div id="machine-container"></div>
+
+<script>
+
+async function refreshMachines()
+{
+    const container =
+        document.getElementById("machine-container");
+
+    container.innerHTML = "Loading...";
+
+    try
+    {
+        const response =
+            await fetch("/machines");
+
+        const data =
+            await response.json();
+        
+        container.innerHTML = "";
+
+        data.Machines.forEach(machine =>
+        {
+            const card =
+                document.createElement("div");
+
+            card.className = "card";
+
+            card.innerHTML = `
+                <div class="machine-header">
+
+                    <div class="machine-info">
+                        <strong>${machine.name}</strong><br>
+                        ID: ${machine.id}<br>
+                        Type: ${machine.controlType}<br>
+                        Suffix: ${machine.suffix}
+                    </div>
+
+                    <button onclick="deleteMachine(${machine.id})">
+                        Delete
+                    </button>
+
+                </div>
+
+                <hr>
+
+                <input
+                    type="file"
+                    id="file-${machine.id}"
+                >
+
+                <button onclick="uploadFile(${machine.id})">
+                    Upload
+                </button>
+
+                <div
+                    class="status"
+                    id="status-${machine.id}">
+                </div>
+            `;
+
+            container.appendChild(card);
+        });
+    }
+    catch(err)
+    {
+        container.innerHTML =
+            "Failed to load machines.";
+    }
+}
+
+async function addMachine()
+{
+    const name =
+        document.getElementById("machine-name").value;
+
+    const controlType =
+        document.getElementById("machine-type").value;
+
+    const suffix =
+        document.getElementById("machine-suffix").value;
+
+    if(!name)
+    {
+        alert("Enter a machine name.");
+        return;
+    }
+
+    const response =
+        await fetch("/add-machine",
+        {
+            method: "POST",
+
+            headers:
+            {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(
+            {
+                name: name,
+                controlType: controlType,
+                suffix: suffix
+            })
+        });
+
+    if(response.ok)
+    {
+        document.getElementById("machine-name").value = "";
+
+        refreshMachines();
+    }
+    else
+    {
+        alert("Failed to add machine.");
+    }
+}
+
+async function deleteMachine(id)
+{
+    if(!confirm("Delete this machine?"))
+        return;
+
+    const response =
+        await fetch(`/machine/${id}`,
+        {
+            method: "DELETE"
+        });
+
+    if(response.ok)
+    {
+        refreshMachines();
+    }
+    else
+    {
+        alert("Delete failed.");
+    }
+}
+
+async function uploadFile(machineID)
+{
+    const input =
+        document.getElementById(`file-${machineID}`);
+
+    if(input.files.length === 0)
+    {
+        alert("Choose a file first.");
+        return;
+    }
+
+    const file =
+        input.files[0];
+
+    const formData =
+        new FormData();
+
+    formData.append("file", file);
+    formData.append("machineID", machineID);
+
+    const status =
+        document.getElementById(`status-${machineID}`);
+
+    status.textContent = "Uploading...";
+
+    try
+    {
+        const response =
+            await fetch("/upload",
+            {
+                method: "POST",
+                body: formData
+            });
+
+        if(response.ok)
+        {
+            status.textContent =
+                `Uploaded: ${file.name}`;
+        }
+        else
+        {
+            status.textContent =
+                "Upload failed.";
+        }
+    }
+    catch(err)
+    {
+        status.textContent =
+            "Upload failed.";
+    }
+}
+
+refreshMachines();
+
+</script>
+
+</body>
+</html>
