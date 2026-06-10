@@ -1,4 +1,4 @@
-import json
+import json, os
 
 class ControlType:
     ...
@@ -122,4 +122,17 @@ def getStatus(id: int) -> dict:
     
     return {"connected": connected, "busy": busy}
     #TODO: Finish
-    
+
+def createQueueFile():
+    try:
+        with open('Server/Uploads/queue.json', 'r'):
+            ...
+    except FileNotFoundError:
+        try:
+            with open('Server/Uploads/queue.json', 'w') as file:
+                json.dump({}, file)
+        except FileNotFoundError:
+            os.mkdir("Server/Uploads")
+            with open('Server/Uploads/queue.json', 'w') as file:
+                json.dump({}, file)
+

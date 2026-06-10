@@ -93,6 +93,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
 
 with socketserver.ThreadingTCPServer(("", PORT), RequestHandler) as httpd:
+    MachineUtil.createQueueFile()
     print(f"Listening on port {PORT}")
     print(f"http://{socket.gethostbyname(socket.gethostname())}:{PORT}")
 
