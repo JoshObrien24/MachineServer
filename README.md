@@ -6,8 +6,11 @@ ESP-Side
 Control
 
 ## Done
-Machine Creator
+Machine Creator / Removver
 Server
+File Verification
+Statuses
+Queue
 
 # To Run
 Run 'python -m Server.main' while in the MachineServer directory.

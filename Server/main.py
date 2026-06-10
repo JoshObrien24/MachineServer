@@ -23,7 +23,12 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
         if self.path.startswith('/status/'):
             machine_id = int(self.path.split("/")[-1])
-            MachineUtil.getStatus(machine_id)
+            self.send_json(MachineUtil.getStatus(machine_id))
+            return
+
+        if self.path == "/queue":
+            self.send_json(MachineUtil.getQueue())
+            return
 
         return super().do_GET()
 
@@ -43,9 +48,11 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
                 return
 
             file_item = form["file"]
-
             filename = os.path.basename(file_item.filename)
-            MachineUtil.addFileToQueue(form['machineID'].value, filename)
+            if MachineUtil.verifyQueue(form['machineID'].value, filename):
+                MachineUtil.addFileToQueue(form['machineID'].value, filename)
+            else:
+                self.send_error(401, "File Already Uploaded")
 
             with open(os.path.join("Server/Uploads", filename), "wb") as f:
                 f.write(file_item.file.read())
@@ -56,7 +63,6 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
             })
 
             return
-
 
         if self.path == "/add-machine":
             length = int(self.headers["Content-Length"])

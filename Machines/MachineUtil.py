@@ -42,19 +42,22 @@ def addMachine(name: str, id: int, controlType: ControlType, suffix: str) -> Non
             json.dump(content, file, indent=2)
 
 def addMachineJSON(machine: dict) -> None:
-    if id not in (ids:=getIDs()):
-        with open('Machines/Machines.json', 'r') as file:
-            content = json.load(file)
-        try:
-            machine['id']
-        except KeyError:
-            ids.sort()
-            machine['id'] = ids[-1] + 1
-        content['Machines'].append(machine)
-        with open('Machines/Machines.json', 'w') as file:
-            json.dump(content, file, indent=2)
+    ids = getIDs()
+    
+    with open('Machines/Machines.json', 'r') as file:
+        content = json.load(file)
+    try:
+        machine['id']
+    except KeyError:
+        ids.sort()
+        machine['id'] = ids[-1] + 1
+    content['Machines'].append(machine)
+    with open('Machines/Machines.json', 'w') as file:
+        json.dump(content, file, indent=2)
 
 def deleteMachineByID(id: int) -> None:
+    id = f"{id}"
+
     if id in getIDs():
         with open('Machines/Machines.json', 'r') as file:
             content = json.load(file)
@@ -70,6 +73,8 @@ def deleteMachineByID(id: int) -> None:
             json.dump(content, file, indent=2)
 
 def addFileToQueue(id: int, filename: str):
+    id = f"{id}"
+
     with open('Server/Uploads/queue.json', 'r') as file:
         content = json.load(file)
     
@@ -83,7 +88,9 @@ def addFileToQueue(id: int, filename: str):
     with open('Server/Uploads/queue.json', 'w') as file:
         json.dump(content, file, indent=2)
 
-def verifyQueue(id:int, filename: str) -> bool:
+def verifyQueue(id: int, filename: str) -> bool:
+    id = f"{id}"
+
     with open('Server/Uploads/queue.json', 'r') as file:
         content = json.load(file)
     
@@ -92,9 +99,27 @@ def verifyQueue(id:int, filename: str) -> bool:
     except KeyError:
         content[id] = []
     
-    #TODO: Finish
+    print(content[id], filename)
+    return not filename in content[id]
 
-def getStatus(id: int) -> bool:
+def getQueue():
+    with open('Server/Uploads/queue.json', 'r') as file:
+        return json.load(file)
+
+def getStatus(id: int) -> dict:
+    id = f"{id}"
+    connected = True #TODO: Make a real method for this
+    busy = False
+    
+    with open('Server/Uploads/queue.json', 'r') as file:
+        content = json.load(file)
+
+    try:
+        if len(content[id]) > 0:
+            busy = True
+    except KeyError:
+        pass
+    
+    return {"connected": connected, "busy": busy}
     #TODO: Finish
-    ...
     
