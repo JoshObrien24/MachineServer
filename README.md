@@ -6,11 +6,11 @@ ESP-Side
 Control
 
 ## Done
-Machine Creator / Remover \n
-Server \n
-File Verification \n
-Statuses \n
-Queue \n
+Machine Creator / Remover  
+Server  
+File Verification  
+Statuses  
+Queue  
 
 # To Run
 Run 'python -m Server.main' while in the MachineServer directory.
