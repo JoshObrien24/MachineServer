@@ -6,6 +6,7 @@ import socket
 import cgi
 import Machines.Machines as Machines
 import Machines.MachineUtil as MachineUtil
+import Machines.Util as Util
 
 PORT = 8000
 
@@ -27,7 +28,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
             return
 
         if self.path == "/queue":
-            self.send_json(MachineUtil.getQueue())
+            self.send_json(Util.getQueue())
             return
 
         return super().do_GET()
@@ -49,8 +50,8 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
             file_item = form["file"]
             filename = os.path.basename(file_item.filename)
-            if MachineUtil.verifyQueue(form['machineID'].value, filename):
-                MachineUtil.addFileToQueue(form['machineID'].value, filename)
+            if Util.verifyQueue(form['machineID'].value, filename):
+                Util.addFileToQueue(form['machineID'].value, filename)
             else:
                 self.send_error(401, "File Already Uploaded")
 
@@ -93,7 +94,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
 
 with socketserver.ThreadingTCPServer(("", PORT), RequestHandler) as httpd:
-    MachineUtil.createQueueFile()
+    Util.createQueueFile()
     print(f"Listening on port {PORT}")
     print(f"http://{socket.gethostbyname(socket.gethostname())}:{PORT}")
 
