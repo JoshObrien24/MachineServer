@@ -13,6 +13,7 @@ Server
 File Verification  
 Statuses  
 Queue  
+Ping machines
 
 # To Run
 Run 'python -m Server.main' while in the MachineServer directory.

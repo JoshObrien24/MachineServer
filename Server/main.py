@@ -96,6 +96,6 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
 with socketserver.ThreadingTCPServer(("", PORT), RequestHandler) as httpd:
     ServerUtil.createQueueFile()
     print(f"Listening on port {PORT}")
-    print(f"http://{socket.gethostbyname(socket.gethostname())}:{PORT}")
+    print(f"http://{socket.gethostbyname(socket.gethostname())}:{PORT}/Server/web/")
 
     httpd.serve_forever()

@@ -54,8 +54,15 @@ def pingMachine(id: str) -> bool:
         with open('Machines/Machines.json', 'r') as file:
             content = json.load(file)
         
-        ip_addr = content['Machines'][id]['ip']
+        ip_addr = '0.0.0.0'
+        for machine in content['Machines']:
+            if machine['id'] == int(id):
+                ip_addr = machine['ip']
         result = subprocess.run(['ping', '-n', '1', ip_addr], capture_output=True, text=True)
-        return result.returncode == 0
+        if result.returncode == 0:
+            return True
+        print('IP Address not connected')
+        return False
     except KeyError:
         print(f'IP Not Found for Machine ID: {id}')
+        return False
