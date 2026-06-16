@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 
 def addFileToQueue(id: int, filename: str):
     id = f"{id}"
@@ -47,3 +48,14 @@ def createQueueFile():
             os.mkdir("Server/Uploads")
             with open('Server/Uploads/queue.json', 'w') as file:
                 json.dump({}, file)
+
+def pingMachine(id: str) -> bool:
+    try:
+        with open('Machines/Machines.json', 'r') as file:
+            content = json.load(file)
+        
+        ip_addr = content['Machines'][id]['ip']
+        result = subprocess.run(['ping', '-n', '1', ip_addr], capture_output=True, text=True)
+        return result.returncode == 0
+    except KeyError:
+        print(f'IP Not Found for Machine ID: {id}')

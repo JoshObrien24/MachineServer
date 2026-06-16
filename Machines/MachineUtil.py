@@ -1,4 +1,5 @@
-import json, os
+import json
+from Server.ServerUtil import pingMachine
 
 class ControlType:
     ...
@@ -74,7 +75,7 @@ def deleteMachineByID(id: int) -> None:
 
 def getStatus(id: int) -> dict:
     id = f"{id}"
-    connected = True #TODO: Make a real method for this
+    connected = pingMachine(id)
     busy = False
     
     with open('Server/Uploads/queue.json', 'r') as file:
