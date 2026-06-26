@@ -2,11 +2,12 @@ from Machines.MachineUtil import ControlType, ControllerEnum
 import json
 
 class Machine:
-    def __init__(self, name: str, id: int, controlType: ControlType, suffix: str):
+    def __init__(self, name: str, id: int, controlType: ControlType, suffix: str, macAddr: str = ""):
         self.name = name
         self.id = id
         self.controlType = controlType
         self.suffix = suffix
+        self.macAddr = macAddr
 
     def __str__(self):
         return f'{self.name}-{self.suffix}'.replace(' ', '-')
@@ -30,9 +31,14 @@ def loadFromJsonRaw() -> dict:
 
 def parseJson(item: dict) -> Machine:
     controllerEnum = ControllerEnum()
+    try:
+        macAddr = item['mac']
+    except KeyError:
+        macAddr = ""
     return Machine(
         item['name'],
         item["id"],
         controllerEnum.fromStr(item['controlType']),
-        item['suffix']
+        item['suffix'],
+        macAddr
     )

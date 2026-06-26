@@ -1,5 +1,5 @@
 import json
-from Server.ServerUtil import pingMachine
+from Server.ServerUtil import pingMachine, createArpTable
 
 class ControlType:
     ...
@@ -75,6 +75,7 @@ def deleteMachineByID(id: int) -> None:
 
 def getStatus(id: int) -> dict:
     id = f"{id}"
+    createArpTable()
     connected = pingMachine(id)
     busy = False
     

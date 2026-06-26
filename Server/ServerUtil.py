@@ -2,6 +2,8 @@ import json
 import os
 import subprocess
 
+arpTable = {}
+
 def addFileToQueue(id: int, filename: str):
     id = f"{id}"
 
@@ -49,15 +51,22 @@ def createQueueFile():
             with open('Server/Uploads/queue.json', 'w') as file:
                 json.dump({}, file)
 
-def pingMachine(id: str) -> bool:
+def pingMachine(id: str | int) -> bool:
     try:
         with open('Machines/Machines.json', 'r') as file:
             content = json.load(file)
         
-        ip_addr = '0.0.0.0'
+        mac = ""
         for machine in content['Machines']:
             if machine['id'] == int(id):
-                ip_addr = machine['ip']
+                mac = machine['mac']
+        
+        ip_addr = ""
+        try:
+            ip_addr = arpTable[mac]['ip']
+        except Exception as e:
+            print(e)
+
         result = subprocess.run(['ping', '-n', '1', ip_addr], capture_output=True, text=True)
         if result.returncode == 0:
             return True
@@ -66,3 +75,29 @@ def pingMachine(id: str) -> bool:
     except KeyError:
         print(f'IP Not Found for Machine ID: {id}')
         return False
+    
+
+def createArpTable():
+    global arpTable
+
+    arp = subprocess.run(['arp', '-a'], capture_output=True, text=True)
+    if (arp.returncode == 0):
+        tempList = arp.stdout.strip().split('\n')
+        tempList.pop(0)
+        tempList.pop(0)
+
+        arpTable = {}
+        for entries in tempList:
+            item = entries.split()
+            
+            arpTable[item[1]] = {
+                'ip': item[0],
+                'connectionType': item[2]
+            }
+            
+        return arpTable
+
+if __name__ == "__main__":
+    createArpTable()
+    print(pingMachine(0))
+    print(arpTable)

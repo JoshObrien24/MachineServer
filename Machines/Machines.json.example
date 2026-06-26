@@ -7,10 +7,16 @@
             "suffix": "For Identical Devices"
         },
         {
-            "name": "Human Readable",
+            "name": "Ender 3 Neo",
             "id": 1,
             "controlType": "Marlin",
-            "suffix": "For Identical Devices" 
+            "suffix": "Main" 
+        },
+        {
+            "name": "Ender 3 Neo",
+            "id": 2,
+            "controlType": "Marlin",
+            "suffix": "Secondary" 
         }
     ]
 }

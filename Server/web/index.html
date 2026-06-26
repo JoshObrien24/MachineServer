@@ -110,6 +110,7 @@
   .stat-val { font-size: 24px; font-weight: 500; }
   .stat-val.green { color: var(--green); }
   .stat-val.amber { color: var(--amber); }
+  .stat-val.red { color: var(--red); }
 
   /* Section title */
   .section-title {
@@ -365,9 +366,13 @@
       <div class="stat-label">Online</div>
       <div class="stat-val green" id="stat-online">—</div>
     </div>
+        <div class="stat">
+      <div class="stat-label">Idle</div>
+      <div class="stat-val amber" id="stat-idle">—</div>
+    </div>
     <div class="stat">
       <div class="stat-label">Busy</div>
-      <div class="stat-val amber" id="stat-busy">—</div>
+      <div class="stat-val red" id="stat-busy">—</div>
     </div>
     <div class="stat">
       <div class="stat-label">Jobs queued</div>
@@ -543,11 +548,13 @@
   }
 
   function renderStats() {
-    const online = machines.filter(m => statusClass(m.id) === 'online').length;
+    const online = machines.filter(m => statusClass(m.id) === 'online' || statusClass(m.id) === 'busy').length;
     const busy   = machines.filter(m => statusClass(m.id) === 'busy').length;
+    const idle   = machines.filter(m => statusClass(m.id) !== 'busy' && statusClass(m.id) === 'online').length;
     const jobs   = Object.values(queue).reduce((s, q) => s + q.length, 0);
     document.getElementById('stat-machines').textContent = machines.length;
     document.getElementById('stat-online').textContent   = online;
+    document.getElementById('stat-idle').textContent   = idle;
     document.getElementById('stat-busy').textContent     = busy;
     document.getElementById('stat-jobs').textContent     = jobs;
   }

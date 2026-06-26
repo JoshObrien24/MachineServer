@@ -92,10 +92,10 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
 
         self.send_error(404)
 
+def startServer() -> None:
+    with socketserver.ThreadingTCPServer(("", PORT), RequestHandler) as httpd:
+        ServerUtil.createQueueFile()
+        print(f"Listening on port {PORT}")
+        print(f"http://{socket.gethostbyname(socket.gethostname())}:{PORT}/Server/web/")
 
-with socketserver.ThreadingTCPServer(("", PORT), RequestHandler) as httpd:
-    ServerUtil.createQueueFile()
-    print(f"Listening on port {PORT}")
-    print(f"http://{socket.gethostbyname(socket.gethostname())}:{PORT}/Server/web/")
-
-    httpd.serve_forever()
+        httpd.serve_forever()
