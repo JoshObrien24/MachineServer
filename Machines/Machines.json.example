@@ -4,19 +4,22 @@
             "name": "Human Readable",
             "id": 0,
             "controlType": "GRBL",
-            "suffix": "For Identical Devices"
+            "suffix": "For Identical Devices",
+            "mac": "00-00-00-00-00-00"
         },
         {
             "name": "Ender 3 Neo",
             "id": 1,
             "controlType": "Marlin",
-            "suffix": "Main" 
+            "suffix": "Main",
+            "mac": "00-00-00-00-00-00"
         },
         {
             "name": "Ender 3 Neo",
             "id": 2,
             "controlType": "Marlin",
-            "suffix": "Secondary" 
+            "suffix": "Secondary",
+            "mac": "00-00-00-00-00-00"
         }
     ]
 }
