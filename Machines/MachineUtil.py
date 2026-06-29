@@ -1,27 +1,35 @@
 import json
-from Server.ServerUtil import pingMachine, createArpTable
+try: 
+    from Server.ServerUtil import pingMachine, createArpTable
+except ImportError:
+    pass
+
+types = []
 
 class ControlType:
-    ...
+    def __init_subclass__(cls):
+        global types
+        types.append(cls.__name__)
 
 class Marlin(ControlType):
     def __str__(self):
-        return 'Marlin'
+        return self.__name__
 
-class grbl(ControlType):
+class GRBL(ControlType):
     def __str__(self):
-        return 'GRBL'
-
+        return self.__name__
+    
 class ControllerEnum:
-    MARLIN = Marlin()
-    GRBL = grbl()
+    global types
 
-    __types = [MARLIN, GRBL]
-
-    def fromStr(self, controlType: str):
-        for item in self.__types:
+    @classmethod
+    def fromStr(cls, controlType: str):
+        for item in types:
             if controlType == str(item):
                 return item
+    
+    def __str__(self):
+        return ', '.join(types)
 
 def getIDs() -> list:
     with open('Machines/Machines.json', 'r') as file:
@@ -51,7 +59,10 @@ def addMachineJSON(machine: dict) -> None:
         machine['id']
     except KeyError:
         ids.sort()
-        machine['id'] = ids[-1] + 1
+        if len(ids) != 0:
+            machine['id'] = ids[-1] + 1
+        else:
+            machine['id'] = 0
     content['Machines'].append(machine)
     with open('Machines/Machines.json', 'w') as file:
         json.dump(content, file, indent=2)
@@ -83,10 +94,13 @@ def getStatus(id: int) -> dict:
         content = json.load(file)
 
     try:
-        if len(content[id]) > 0:
+        if len(content[id]) > 0 and connected:
             busy = True
     except KeyError:
         pass
     
     return {"connected": connected, "busy": busy}
-    #TODO: Finish
+
+if __name__ == '__main__':
+    test = ControllerEnum()
+    print(str(test))

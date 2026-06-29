@@ -30,7 +30,6 @@ def loadFromJsonRaw() -> dict:
     return base
 
 def parseJson(item: dict) -> Machine:
-    controllerEnum = ControllerEnum()
     try:
         macAddr = item['mac']
     except KeyError:
@@ -38,7 +37,7 @@ def parseJson(item: dict) -> Machine:
     return Machine(
         item['name'],
         item["id"],
-        controllerEnum.fromStr(item['controlType']),
+        ControllerEnum.fromStr(item['controlType']),
         item['suffix'],
         macAddr
     )

@@ -75,13 +75,12 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):
             self.send_json({
                 "success": True
             })
-
+            
             return
 
         self.send_error(404)
 
     def do_DELETE(self):
-
         if self.path.startswith("/machine/"):
             machine_id = int(self.path.split("/")[-1])
             MachineUtil.deleteMachineByID(machine_id)

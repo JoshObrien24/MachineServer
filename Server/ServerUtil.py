@@ -64,8 +64,8 @@ def pingMachine(id: str | int) -> bool:
         ip_addr = ""
         try:
             ip_addr = arpTable[mac]['ip']
-        except Exception as e:
-            print(e)
+        except:
+            return False
 
         result = subprocess.run(['ping', '-n', '1', ip_addr], capture_output=True, text=True)
         if result.returncode == 0:
